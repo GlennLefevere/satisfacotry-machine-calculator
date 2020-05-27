@@ -1,0 +1,28 @@
+<form [formGroup]="singleInputForm">
+  <div class="row">
+    <div class="form-group col-2">
+      <label for="input">Input</label>
+      <input type="number" class="form-control" id="input" formControlName="input">
+    </div>
+
+    <div class="form-group col-2">
+      <label for="inputPartsPerMinute">Input parts / min</label>
+      <input type="number" class="form-control" id="inputPartsPerMinute" formControlName="requiredPerMinute">
+    </div>
+
+    <div class="form-group col-2">
+      <label for="outputPartsPerMinute">Output parts / min</label>
+      <input type="number" class="form-control" id="outputPartsPerMinute" formControlName="outputPerMinute">
+    </div>
+  </div>
+
+</form>
+
+<div class="d-flex flex-column">
+  <div>
+    Maximum output: {{maxOutput}}
+  </div>
+  <div>
+    Number of machines: {{machines}} at {{percentage}}%
+  </div>
+</div>

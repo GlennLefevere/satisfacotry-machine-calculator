@@ -1,0 +1,43 @@
+<form [formGroup]="dualInputForm">
+  <div class="row">
+    <div class="form-group col-2">
+      <label for="inputOne">Input 1</label>
+      <input type="number" class="form-control" id="inputOne" formControlName="inputOne">
+    </div>
+
+    <div class="form-group col-2">
+      <label for="inputPartsPerMinuteOne">Input 1 parts / min</label>
+      <input type="number" class="form-control" id="inputPartsPerMinuteOne" formControlName="requiredPerMinuteOne">
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-2"></div>
+    <div class="col-2"></div>
+    <div class="form-group col-2">
+      <label for="outputPartsPerMinute">Output parts / min</label>
+      <input type="number" class="form-control" id="outputPartsPerMinute" formControlName="outputPerMinute">
+    </div>
+  </div>
+  <div class="row">
+    <div class="form-group col-2">
+      <label for="inputTwo">Input 2</label>
+      <input type="number" class="form-control" id="inputTwo" formControlName="inputTwo">
+    </div>
+
+    <div class="form-group col-2">
+      <label for="inputPartsPerMinuteTwo">Input 2 parts / min</label>
+      <input type="number" class="form-control" id="inputPartsPerMinuteTwo" formControlName="requiredPerMinuteTwo">
+    </div>
+  </div>
+
+
+</form>
+
+<div class="d-flex flex-column">
+  <div>
+    Maximum output: {{maxOutput}}
+  </div>
+  <div>
+    Number of machines: {{machines}} at {{percentage}}%
+  </div>
+</div>
