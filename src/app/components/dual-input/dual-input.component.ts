@@ -1,6 +1,8 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, Validators} from '@angular/forms';
 import {Subscription} from 'rxjs';
+import {CalculateMachinesAndPercentageResult, CalculatorUtil} from '../../utils/calculator.util';
+import {debounceTime} from 'rxjs/operators';
 
 @Component({
   selector: 'app-dual-input',
@@ -19,8 +21,8 @@ export class DualInputComponent implements OnInit, OnDestroy {
 
   maxOutput = 0;
   private calculationMaxOutput = 0;
-  percentage = 0;
-  machines = 0;
+  calculation: CalculateMachinesAndPercentageResult[] = [];
+  calculation2: CalculateMachinesAndPercentageResult;
 
   get inputOne() {
     return this.dualInputForm.get('inputOne');
@@ -52,11 +54,15 @@ export class DualInputComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.subs.push(
-      this.dualInputForm.valueChanges.subscribe(_ => {
-        this.determineInputUsage();
-        this.calculateMaxOutput();
-        this.calculateIdealMachinesAndPercentage();
-      })
+      this.dualInputForm.valueChanges
+        .pipe(debounceTime(600))
+        .subscribe(_ => {
+          if (this.dualInputForm.valid) {
+            this.determineInputUsage();
+            this.calculateMaxOutput();
+            this.calculateIdealMachinesAndPercentage();
+          }
+        })
     );
   }
 
@@ -83,22 +89,17 @@ export class DualInputComponent implements OnInit, OnDestroy {
   }
 
   private calculateMaxOutput() {
-    const output = (this.inputUsage / this.inputUsagePerMinute) * this.outputPerMinute.value;
-    this.maxOutput = Math.round((output + Number.EPSILON) * 100) / 100;
-    this.calculationMaxOutput = output;
+    const {maxOutput, calculationMaxOutput} = CalculatorUtil
+      .calculateMaxOutput(this.inputUsage, this.inputUsagePerMinute, this.outputPerMinute.value);
+
+    this.maxOutput = maxOutput;
+    this.calculationMaxOutput = calculationMaxOutput;
   }
 
   private calculateIdealMachinesAndPercentage() {
-    let i = 100;
-    let machines = 0;
-    do {
-      const percentageOutput = (this.outputPerMinute.value * (i / 100));
-      machines = this.calculationMaxOutput / percentageOutput;
-      i--;
-    } while (machines !== 0 && (machines - Math.floor(machines)) !== 0 && i > 0);
-
-    this.machines = machines;
-    this.percentage = i + 1;
+    this.calculation = CalculatorUtil
+      .calculateWithLeastNumberOfMachines(this.inputUsage, this.inputUsagePerMinute);
+    this.calculation2 = CalculatorUtil.calculateWithPercentageOptimization(this.outputPerMinute.value, this.calculationMaxOutput);
   }
 
 }

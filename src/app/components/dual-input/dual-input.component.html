@@ -37,7 +37,13 @@
   <div>
     Maximum output: {{maxOutput}}
   </div>
-  <div>
-    Number of machines: {{machines}} at {{percentage}}%
+  <div *ngFor="let result of calculation">
+    {{result.machines}} machines at {{result.percentage}}%
+  </div>
+  <div *ngIf="dualInputForm.valid && !!calculation2">
+    OR
+  </div>
+  <div *ngIf="!!calculation2">
+    {{calculation2.machines}} machines at {{calculation2.percentage}}%
   </div>
 </div>

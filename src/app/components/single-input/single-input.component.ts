@@ -1,6 +1,8 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, Validators} from '@angular/forms';
 import {Subscription} from 'rxjs';
+import {CalculateMachinesAndPercentageResult, CalculatorUtil} from '../../utils/calculator.util';
+import {debounceTime} from 'rxjs/operators';
 
 @Component({
   selector: 'app-single-input',
@@ -16,8 +18,9 @@ export class SingleInputComponent implements OnInit, OnDestroy {
   });
 
   maxOutput = 0;
-  percentage = 0;
-  machines = 0;
+
+  calculation: CalculateMachinesAndPercentageResult[] = [];
+  calculation2: CalculateMachinesAndPercentageResult;
 
   private subs: Subscription[] = [];
 
@@ -37,14 +40,16 @@ export class SingleInputComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.subs.push(this.singleInputForm.valueChanges.subscribe(
-      _ => {
-        if (this.singleInputForm.valid) {
-          this.calculateMaxOutput();
-          this.calculateIdealMachinesAndPercentage();
+    this.subs.push(this.singleInputForm.valueChanges
+      .pipe(debounceTime(600))
+      .subscribe(
+        _ => {
+          if (this.singleInputForm.valid) {
+            this.calculateMaxOutput();
+            this.calculateIdealMachinesAndPercentage();
+          }
         }
-      }
-    ));
+      ));
   }
 
   ngOnDestroy(): void {
@@ -52,20 +57,14 @@ export class SingleInputComponent implements OnInit, OnDestroy {
   }
 
   private calculateMaxOutput() {
-    this.maxOutput = (this.input.value / this.requiredPerMinute.value) * this.outputPerMinute.value;
+    const {maxOutput} = CalculatorUtil.calculateMaxOutput(this.input.value, this.requiredPerMinute.value, this.outputPerMinute.value);
+    this.maxOutput = maxOutput;
   }
 
   private calculateIdealMachinesAndPercentage() {
-    let i = 100;
-    let machines = 0;
-    do {
-      const percentageOutput = (this.outputPerMinute.value * (i / 100));
-      machines = this.maxOutput / percentageOutput;
-      i--;
-    } while (machines !== 0 && (machines - Math.floor(machines)) !== 0 && i > 0);
-
-    this.machines = machines;
-    this.percentage = i + 1;
+    this.calculation = CalculatorUtil
+      .calculateWithLeastNumberOfMachines(this.input.value, this.requiredPerMinute.value);
+    this.calculation2 = CalculatorUtil.calculateWithPercentageOptimization(this.outputPerMinute.value, this.maxOutput);
   }
 
 }
